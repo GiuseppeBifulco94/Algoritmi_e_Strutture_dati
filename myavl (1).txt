@@ -1,0 +1,125 @@
+#include "myavl.h"
+
+
+/**********************************************************************/
+
+
+/**/
+avl_t *myinitavl(void){
+	return NULL;
+}
+
+
+/**/
+int myheightavl(avl_t *root){
+	if (root == NULL)
+		return -1;
+	else
+		return root->height;
+}
+
+
+/* myturnsl effettua una rotazione singola a sinistra */
+avl_t *myturnsl(avl_t *root){
+	avl_t *temp = root->left;
+	root->left = temp->right;
+	temp->right = root;
+	root->height = mymax(root->left->height, root->right->height) +1;
+	temp->height = mymax(temp->left->height, temp->right->height) +1;
+	return temp;
+}
+
+
+/* myturndl effettua una rotazione doppia a sinistra */
+avl_t *myturndl(avl_t *root){
+	root->left = myturnsr(root->left);
+	return myturnsl(root);
+}
+
+
+/* myturnsr effettua una rotazione singola a destra */
+avl_t *myturnsr(avl_t *root){
+	avl_t *temp = root->right;
+	root->right = temp->left;
+	temp->left = root;
+	root->height = mymax(root->left->height, root->right->height) +1;
+	temp->height = mymax(temp->left->height, temp->right->height) +1;
+	return temp;
+}
+
+
+/* myturndr effettua una rotazione doppia a destra */
+avl_t *myturndr(avl_t *root){
+	root->right = myturnsl(root->right);
+	return myturnsr(root);
+}
+
+/**/
+int myissl(avl_t *root){
+	if (root->left->height > root->right->height)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+
+/**/
+int myissr(avl_t *root){
+	if (root->left->height < root->right->height)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+
+/**/
+avl_t *myinavl(avl_t *root, int value){
+	if (root == NULL){
+		root = (avl_t *)malloc(sizeof(avl_t *));
+		root->key = value;
+		root->height = 0;
+	} else if (value < root->key){
+		root->left = myinavl(root->left, value);
+		root = mybalanceleft(root);
+	} else if (value > root->key){
+		root->right = myinavl(root->right, value);
+		root = mybalanceright(root);
+	}
+	return root;
+}
+
+
+/**/
+avl_t *mybalanceleft(avl_t *root){
+	if ((root->left->height - root->right->height) == 2)
+		if (myissl(root->left) == TRUE)
+			root = myturnsl(root);
+		else
+			root = myturndl(root);
+	else
+		root->height = mymax(root->left->height, root->right->height) +1;
+}
+
+
+/**/
+avl_t *mybalanceright(avl_t *root){
+	if ((root->right->height - root->left->height) == 2)
+		if (myissl(root->right) == TRUE)
+			root = myturnsr(root);
+		else
+			root = myturndr(root);
+	else
+		root->height = mymax(root->left->height, root->right->height) +1;
+}
+
+
+/**********************************************************************/
+/* myinorder permette di visualizzare un albero da sinistra a destra  */
+/**********************************************************************/
+void myinorderavl(avl_t *root){
+	if (root != NULL){
+		myinorder(root->left);
+		printf("%d(%d)\n", root->key, root->height);
+		myinorder(root->right);
+	}
+}
